@@ -48,18 +48,15 @@ class SPARQLQuery:
         return None
 
 
-def search_thesaurus(subject):
-    """
-    :param subject: the search term to pass to id.loc.gov to search the subject headings
-    :return: a list of tuples, containing pairs of heading names and ids for search results
-    """
+def search_thesaurus(term):
+    """searches for the term using the API (returns XML)"""
     # start = time.time()  # for testing
-    response = requests.get(BASE_URI + subject.replace(" ", "+") + END_URI, stream=True)
+    response = requests.get(BASE_URI + term.replace(" ", "+") + END_URI, stream=True)
     response.raw.decode_content = True
     lxml = etree.parse(response.raw)
-    subject_results = lxml.getroot().xpath("/Vocabulary/Subject")
+    term_results = lxml.getroot().xpath("/Vocabulary/Subject")
     pref_tuples = []
-    for i in range(0, len(subject_results)):
+    for i in range(0, len(term_results)):
         pref_term = lxml.getroot().xpath("/Vocabulary/Subject/Preferred_Term")[i].text
         pref_parent = lxml.getroot().xpath("/Vocabulary/Subject/Subject_ID")[i].text
         pref_tuples.append((pref_term, pref_parent))
